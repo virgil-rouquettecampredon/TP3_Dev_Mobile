@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">TP3</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="pr_nom">Prénom</string>
+    <string name="nom">Nom</string>
+    <string name="adresse_mail">Adresse mail</string>
+    <string name="num_ro_de_t_l_phone">Numéro de Téléphone</string>
+    <string name="sport">Sport</string>
+    <string name="musique">Musique</string>
+    <string name="lecture">Lecture</string>
+    <string name="informatique">Informatique</string>
+    <string name="soumettre">Soumettre</string>
+    <string name="en_attente_d_information">En attente d\'information</string>
+    <string name="validez">Validez</string>
+    <string name="retour">Retour</string>
+    <string name="lire_contenu">Lire contenu</string>
+    <string name="t_l_charger">Télécharger</string>
+</resources>
