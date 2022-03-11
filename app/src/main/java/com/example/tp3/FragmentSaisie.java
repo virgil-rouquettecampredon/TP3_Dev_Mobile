@@ -1,22 +1,34 @@
 package com.example.tp3;
 
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
+
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
+import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
+import java.io.File;
+import java.io.InputStream;
 
 public class FragmentSaisie extends Fragment {
+
+    private static final int PERMISSION_REQUEST_CODE = 1;
 
     private EditText editTextFirstName;
     private EditText editTextLastName;
@@ -26,6 +38,8 @@ public class FragmentSaisie extends Fragment {
     private CheckBox checkBoxMusique;
     private CheckBox checkBoxLecture;
     private CheckBox checkBoxInformatique;
+
+    private InputStream is;
 
     private Button buttonApply;
     private Button buttonDownload;
@@ -55,18 +69,16 @@ public class FragmentSaisie extends Fragment {
         buttonApply = (Button) view.findViewById(R.id.button_apply);
         buttonDownload = (Button) view.findViewById(R.id.button_download);
 
-        buttonDownload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                manager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-                Uri uri = Uri.parse("https://lostmypieces.com:3000/kanjis");
-                DownloadManager.Request request = new DownloadManager.Request(uri);
-                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
-                long reference = manager.enqueue(request);
-                System.out.println("Téléchargement terminer");
-
-            }
-        });
+        if (checkPermission()) {
+            buttonDownload.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    setButtonDownload();
+                }
+            });
+        } else {
+            requestPermission(); // Code for permission
+        }
 
         buttonApply.setOnClickListener(new View.OnClickListener() {
 
@@ -86,6 +98,38 @@ public class FragmentSaisie extends Fragment {
 
         if (context instanceof MainActivity) {
             this.mainActivity = (MainActivity) context;
+        }
+    }
+
+
+    private boolean checkPermission() {
+        int result = ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (result == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void requestPermission() {
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            Toast.makeText(getActivity(), "Write External Storage permission allows us to do store images. Please allow this permission in App Settings.", Toast.LENGTH_LONG).show();
+        } else {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.e("value", "Permission Granted, Now you can use local drive .");
+                } else {
+                    Log.e("value", "Permission Denied, You cannot use local drive .");
+                }
+                break;
         }
     }
 
@@ -118,5 +162,24 @@ public class FragmentSaisie extends Fragment {
             intent.putExtra("informatique", 0);
         }
         startActivity(intent);
+    }
+
+    public void setButtonDownload() {
+        File JsonStorageDir = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "JsonFolder");
+        if (!JsonStorageDir.exists()) {
+            JsonStorageDir.mkdirs();
+        }
+        String file = getString(R.string.app_name) + "-download_URL.json";
+
+        manager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+        Uri uri = Uri.parse("https://lostmypieces.com:3000/kanjis");
+
+        DownloadManager.Request request = new DownloadManager.Request(uri);
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)
+                .setDestinationInExternalPublicDir(JsonStorageDir.getPath() + File.separator, file)
+                .setTitle(file)
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        manager.enqueue(request);
+        System.out.println("Téléchargement terminer");
     }
 }

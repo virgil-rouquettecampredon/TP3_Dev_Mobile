@@ -13,11 +13,17 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -28,7 +34,15 @@ public class FragmentAffichage extends Fragment {
     private Button button;
     private Button button2;
     private Button buttonFile;
-    String filename;
+    private String prenom;
+    private String nom;
+    private String email;
+    private String phone;
+    private int sport;
+    private int informatique;
+    private int lecture;
+    private int musique;
+    private String filename = "informations.json";
 
     @Nullable
     @Override
@@ -44,17 +58,32 @@ public class FragmentAffichage extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view2) {
-                filename = "informations";
-                String content = textViewFullName.getText().toString();
-
-                FileOutputStream fichier = null;
+                JSONObject jsonObject = new JSONObject();
                 try {
-                    fichier = getActivity().openFileOutput(filename, getActivity().MODE_PRIVATE);
-                    fichier.write(content.getBytes());
-                    fichier.close();
+                    jsonObject.put("prenom", prenom);
+                    jsonObject.put("nom", nom);
+                    jsonObject.put("email", email);
+                    jsonObject.put("phone", phone);
+                    jsonObject.put("sport", sport);
+                    jsonObject.put("informatique", informatique);
+                    jsonObject.put("musique", musique);
+                    jsonObject.put("lecture", lecture);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                String content = jsonObject.toString();
+
+                File file = new File(getActivity().getFilesDir(),filename);
+                FileWriter fileWriter = null;
+                try {
+                    fileWriter = new FileWriter(file);
+                    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                    bufferedWriter.write(content);
+                    bufferedWriter.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
             }
         });
 
@@ -91,6 +120,15 @@ public class FragmentAffichage extends Fragment {
 
 
     public void showText(String prenom, String nom, String email, String phone, int sport, int musique, int lecture, int informatique) {
+        this.prenom = prenom;
+        this.nom = nom;
+        this.email = email;
+        this.phone = phone;
+        this.sport = sport;
+        this.musique = musique;
+        this.lecture = lecture;
+        this.informatique = informatique;
+
         textViewFullName.setText("Prénom : \t"+prenom+"\n" +"Nom: \t" + nom + "\nEmail : \t" + email + "\nPhone :\t" + phone + "\nCentre d'intérêts :\n\tSport :\t" + sport + "\n\tMusique :\t" + musique + "\n\tLecture :\t" + lecture + "\n\tInformatique :\t" + informatique);
     }
 }
