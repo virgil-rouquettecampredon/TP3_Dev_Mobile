@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
 
 public class FragmentSaisie extends Fragment {
 
@@ -172,7 +173,7 @@ public class FragmentSaisie extends Fragment {
         String file = getString(R.string.app_name) + "-download_URL.json";
 
         manager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-        Uri uri = Uri.parse("https://lostmypieces.com:3000/kanjis");
+        Uri uri = Uri.parse("https://api.lostmypieces.com/kanji");
 
         DownloadManager.Request request = new DownloadManager.Request(uri);
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)
